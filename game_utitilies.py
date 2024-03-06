@@ -2,7 +2,7 @@ import pygame as py
 #text on center of screen
 def center_text(surface, font, text):
     render = font.render(text, 1, (255, 0,0))
-    surface.blit(render, ((surface.get_width()/2 - render.get_width()/2), surface.get_height()/2 - render.get_height()/2))
+    surface.blit(render, ((surface.get_width()/2 - render.get_width()/2), surface.get_height()/2 - render.get_height()/2 - 35))
 #scales images easily
 def scale_images(image, scale):
     new_size_w = round(image.get_width() * scale)

@@ -51,7 +51,11 @@ RACETRACKL2 = py.transform.scale(RACETRACKL2, (RACETRACKL2.get_width() * window_
 RACETRACK = scale_images(py.image.load("track.png"), 1)
 RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_x, RACETRACK.get_height() * window_scale_y))
 FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_scale_x, 50 * window_scale_y))
-
+TRACKBORDER3 = py.image.load("track_border_3.png")
+TRACKBORDER3 = py.transform.scale(TRACKBORDER3, (TRACKBORDER3.get_width() * window_scale_x * 2, TRACKBORDER3.get_height() * window_scale_y * 2))
+TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
+RACETRACKL3 = py.image.load("track_border_3.png")
+RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
 FINISHMASK = py.mask.from_surface(FINISH)
 window = py.display.set_mode(windowsize, py.RESIZABLE)
 done = False
@@ -81,12 +85,14 @@ class Finish:
     def level_pos(self, level):
         self.level = level
         if self.level == 1:
-            self.x = 375 * window_scale_x - 110
-            self.y = 2360 * window_scale_y - 75
+            self.x = 375 * window_scale_x - 110 + (340 - 150)
+            self.y = 2360 * window_scale_y - 75 + (240 - 25)
         elif self.level == 2:
-            self.x = 645 * window_scale_x - 100
-            self.y = 2255 * window_scale_y
-    
+            self.x = 645 * window_scale_x - 100 + (340 - 150)
+            self.y = 2255 * window_scale_y + (240 - 25)
+        elif self.level == 3:
+            self.x = 645 * window_scale_x  + (340 - 150) + 200
+            self.y = 2255 * window_scale_y + (240 - 25)
     def shift(self, direction, vel):
         if direction == "U":
             self. y -= vel
@@ -227,7 +233,8 @@ class Game_info:
             self.level_name = "Intro Course"
         elif self.level == 2:
             self.level_name = " The Grotto"
-
+        elif self.level == 3:
+            self.level_name = "The Red Shore"
     
 #-------------------------{}
 
@@ -462,6 +469,7 @@ play_button = Button(play_button_img, half_width, window.get_height()/2.4, "PLAY
 car_button_img = py.image.load("transparent_button.png")
 car_button = Button(car_button_img, half_width, window.get_height()/ 1.5 + (60 * window_scale_y), "SWAP CAR", False, font)
 instructions_button_img = py.image.load("transparent_button.png")
+instructions_button_img = py.transform.scale(instructions_button_img, (instructions_button_img.get_width() + 20, instructions_button_img.get_height()))
 instructions_button = Button(instructions_button_img, half_width, window.get_height()/1.68, "Instructions", False, font)
 #---------------------- car 1
 car1_button_img = py.image.load("track_car1.png")
@@ -488,8 +496,10 @@ next_button = Button(blank_button_img, half_width + (100 * window_scale_x), half
 redo_level_button = Button(blank_button_img, half_width - (100* window_scale_x), half_height + (100 * window_scale_y), "RETRY", False, fontmedium)
 
 #LEVEL TRACK OBJECTS
-track_one = Track(150, 25, RACETRACK)
-track_two = Track(150,25, RACETRACKL2)
+
+track_one = Track(340, 240, RACETRACK)
+track_two = Track(340,240, RACETRACKL2)
+track_three = Track(340, 240, RACETRACKL3)
 finish_line = Finish(FINISH)
 #------------------------------------------[gear text base font render]
 #GEAR STATS, GAME STATS, RENDER
@@ -500,6 +510,7 @@ gear_text = font.render('[G: ' + player_one_car.gear + "MPH: " + player_one_car.
 
 track_one_best = []
 track_two_best = []
+track_three_best = []
 
 
 #-----------------------------------------------------------------------[]
@@ -557,6 +568,8 @@ def main_game_loop():
         current_track = track_one
     elif game_info.level == 2:
         current_track = track_two
+    elif game_info.level == 3:
+        current_track = track_three
     player_one_car.level_reset()
     while not done:
         player_one_car.update()
@@ -580,6 +593,8 @@ def main_game_loop():
             current_track = track_one
         elif game_info.level == 2:
             current_track = track_two
+        elif game_info.level == 3:
+            current_track = track_three
         drawing(window, player_one_car, current_track)
         finish_line.update(window)
         py.display.update()
@@ -588,7 +603,7 @@ def main_game_loop():
         #main event loop
         while not game_info.level_started:
             game_info.get_level_name()
-            center_text(window, fontmedium, f"Press any key to intitiate race {game_info.level_name}")
+            center_text(window, fontmedium, f"Press any key to intitiate race: {game_info.level_name}")
             py.display.update()
             for event in py.event.get():
                 if event.type == py.QUIT:
@@ -617,6 +632,8 @@ def main_game_loop():
                         current_track = track_one
                     elif game_info.level == 2:
                         current_track = track_two
+                    elif game_info.level == 3:
+                        current_track = track_three
                 if event.key == py.K_s:
                     game_info.redo_level(current_track)
                     finish_line.level_pos(game_info.level)
@@ -630,6 +647,10 @@ def main_game_loop():
             current_track = track_two
             if player_one_car.collide(TRACK2BORDER_MASK, current_track.x, current_track.y) != None:
                 player_one_car.bounce(current_track)
+        elif game_info.level == 3:
+            current_track = track_three
+            if player_one_car.collide(TRACKBORDER3_MASK, current_track.x, current_track.y) != None:
+                player_one_car.bounce(current_track)
         if player_one_car.collide(FINISHMASK, finish_line.x, finish_line.y) != None:
             # build a menu for finish  =finish()
             game_info.total_time = game_info.time_in_level()
@@ -637,6 +658,8 @@ def main_game_loop():
                 level_list = track_one_best 
             elif game_info.level == 2:
                 level_list = track_two_best
+            elif game_info.level == 3:
+                level_list = track_three_best
             game_info.get_best(level_list, game_info.total_time)
             level_end_screen()
         
@@ -658,7 +681,7 @@ def main_menu():
         mouse_position = py.mouse.get_pos()
         #displays menu text
         m_text = font.render("Main Menu", True, (WHITE))
-        m_rect = m_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
+        m_rect = m_text.get_rect(center=(window.get_width()/2, window.get_height()/5.2))
         main_menu_background = py.image.load("main_menu_background.png")
         main_menu_background = py.transform.scale(main_menu_background, (350 * window_scale_x, 450 * window_scale_y))
         main_menu_background_rect = main_menu_background.get_rect(center=(window.get_width()/2, window.get_height()/2))
@@ -843,6 +866,8 @@ def level_end_screen():
         current_track = track_one
     elif game_info.level == 2:
         current_track = track_two
+    elif game_info.level == 3:
+        current_track = track_three
     next_button.clicked = False
     redo_level_button.clicked = False
     while not done:
@@ -863,7 +888,8 @@ def level_end_screen():
             level_text_content = "Intro Course"
         elif game_info.level == 2:
             level_text_content = "The Grotto"
-
+        elif game_info.level == 3:
+            level_text_content = "The Red Shore"
         level_text = font.render(level_text_content, True, (255,255,255))
         level_text_rect = level_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
         time_text = font.render("Time: " + str(round(game_info.total_time, 2)), True, (255,255,255))
@@ -908,8 +934,12 @@ while not done:
             car_button.clicked = False
             swap_cars_menu(player_one_car.car)
         
-    track_one.x = 150
-    track_one.y = 25
+    track_one.x = 340
+    track_one.y = 240
+    track_two.x = 340
+    track_two.y = 240
+    track_three.x = 340
+    track_three.y = 240
     player_one_car.level_reset()
     main_game_loop()
 
