@@ -806,15 +806,14 @@ def hover_text_display(car_button):
         car3_info_text_s = font.render("Speed: 8", True, WHITE)
         car3_info_text_a = font.render("Acceleration: 10", True, WHITE)
         car3_info_text_t = font.render("Turning: 5.5", True, WHITE)
-        car3_info_text_special = font.render("Special: Sticky Hook", True, WHITE)
+        
         car3_info_text_S_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos))
         car3_info_text_A_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (35 * window_scale_y)))
         car3_info_text_T_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (70 * window_scale_y)))
-        car3_info_text_Special_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (105 * window_scale_y)))
         window.blit(car3_info_text_s, car3_info_text_S_rect)
         window.blit(car3_info_text_a, car3_info_text_A_rect)
         window.blit(car3_info_text_t, car3_info_text_T_rect)
-        window.blit(car3_info_text_special, car3_info_text_Special_rect)
+
 #--- swap cars menu
             
 def swap_cars_menu(current_car):
