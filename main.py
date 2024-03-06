@@ -196,7 +196,7 @@ class Button:
 
 #levels etc.. switch through tracks + difficulty + game stats
 class Game_info:
-    LEVELS = 10
+    LEVELS = 3
     def __init__(self, Level=1):
         self.level = Level
         self.level_started = False
@@ -210,6 +210,8 @@ class Game_info:
         self.level_started_time = 0
         finish_line.level_pos(self.level)
         player_one_car.level_reset()
+        if self.level >= 4:
+            self.finished()
     def reset_levels(self):
         self.level = 1
         self.level_started = False
@@ -513,7 +515,10 @@ instructions_screen_button = Button(instructions_screen_img, half_width, half_he
 blank_button_img = py.image.load("blank_button.png")
 next_button = Button(blank_button_img, half_width + (100 * window_scale_x), half_height + (100 * window_scale_y), "NEXT LEVEL", False, fontsmall)
 redo_level_button = Button(blank_button_img, half_width - (100* window_scale_x), half_height + (100 * window_scale_y), "RETRY", False, fontmedium)
-
+freeplay_button_img = py.image.load("transparent_button.png")
+freeplay_button = Button(freeplay_button_img, half_width + (200 * window_scale_x), half_height + (50 * window_scale_y), "Freeplay", False, fontmedium)
+main_menu_img = py.image.load("transparent_button.png")
+main_menu_button = Button(main_menu_img, half_width - (200* window_scale_x), half_height + (50 * window_scale_y), "Main Menu", False, fontmedium)
 #LEVEL TRACK OBJECTS
 
 track_one = Track(340, 240, RACETRACK)
@@ -579,6 +584,8 @@ def move_player(player_car, current_track):
 def main_game_loop():
     global track_one_best
     global track_two_best
+    global runme 
+    runme = True
     done = False
     finish_line.update(window)
     global main_menu_run
@@ -590,7 +597,7 @@ def main_game_loop():
     elif game_info.level == 3:
         current_track = track_three
     player_one_car.level_reset()
-    while not done:
+    while not done and runme == True:
         player_one_car.update()
         if game_info.level == 1 or game_info.level == 2:
             window.fill((0,0 ,0))
@@ -638,7 +645,7 @@ def main_game_loop():
                 done = True
                 py.quit()
             if event.type == py.KEYDOWN:
-                if event.key == py.K_r:
+                if event.key == py.K_s:
                 #allows you to put the car into reverse when at a stands still
                     player_one_car.stats()
                     if player_one_car.gear == "N" and player_one_car.vel <= .5:
@@ -655,7 +662,7 @@ def main_game_loop():
                         current_track = track_two
                     elif game_info.level == 3:
                         current_track = track_three
-                if event.key == py.K_s:
+                if event.key == py.K_r:
                     game_info.redo_level(current_track)
                     finish_line.level_pos(game_info.level)
         
@@ -683,6 +690,9 @@ def main_game_loop():
                 level_list = track_three_best
             game_info.get_best(level_list, game_info.total_time)
             level_end_screen()
+        if game_info.finished() == True:
+            end_screen()
+            
         
 #-------------------------------{}
 #original menu while loop
@@ -923,6 +933,7 @@ def level_end_screen():
         if next_button.clicked == True:
             done = True
             game_info.level_next()
+            
         elif redo_level_button.clicked == True:
             done = True
             #reset level
@@ -930,6 +941,37 @@ def level_end_screen():
             finish_line.level_pos(game_info.level)
         py.display.update()
 
+def end_screen():
+    global main_menu_run
+    global runme
+    done = False
+    while not done:
+        window.fill((0,0,0))
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                done = True
+                py.quit()
+            if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
+                freeplay_button.checkClick(py.mouse.get_pos())
+                main_menu_button.checkClick(py.mouse.get_pos())
+        levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
+        levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
+        window.blit(levels_c_text, levels_c_rect)
+        freeplay_button.update()
+        freeplay_button.colorShift(py.mouse.get_pos())
+        main_menu_button.update()
+        main_menu_button.colorShift(py.mouse.get_pos())
+        py.display.update()
+        if freeplay_button.clicked == True:
+            done = True
+            level_select()
+        if main_menu_button.clicked == True:
+            done = True
+            main_menu_run = True
+            runme = False
+def level_select():
+    global runme
+    pass
 player_one_car.reverse = False #little failsafe
 
 
