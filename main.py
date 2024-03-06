@@ -3,11 +3,11 @@ import random as r
 import time
 import math as m
 #import necessary functions from game_utilities folder
+#ive made changes
 from game_utitilies import scale_images, rotate_center_img, center_text
 py.init()
 py.font.init()
 py.mixer.init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
-
 
 
 
@@ -763,7 +763,7 @@ def main_menu():
 
                     if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                         instructions_screen_button.checkClick(py.mouse.get_pos())
-                        if instructions_screen_button.clicked == False:
+                        if (instructions_screen_button.clicked == False) :
                             run_instruct  = False
                 instructions_screen_button.update()
                 py.display.update()
