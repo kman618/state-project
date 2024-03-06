@@ -60,7 +60,15 @@ TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
 RACETRACKL3 = py.image.load("track_3.png")
 RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
 FINISHMASK = py.mask.from_surface(FINISH)
+
+#mixer and bg music init and play
+py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I don't expect us to keep this song. I've also got mixer working for sound effects if needed
+py.mixer.music.play(-1)
+
+
 window = py.display.set_mode(windowsize, py.RESIZABLE)
+
+
 done = False
 clock = py.time.Clock()
 fps = 60
@@ -74,7 +82,7 @@ fontsmall = py.font.SysFont("comicsans", int(16 * window_scale_x))
 #CLASSES
 #-----------------------------------------------------------------------[]
 
-class Finish:
+class Finish: #finish line code
     def __init__(self, img):
         self.img = img
         self.level = 1
@@ -96,7 +104,7 @@ class Finish:
         elif self.level == 3:
             self.x = 645 * window_scale_x  + (340 - 150) + 200
             self.y = 2255 * window_scale_y + (240 - 25)
-    def shift(self, direction, vel):
+    def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
         if direction == "D":
@@ -123,7 +131,7 @@ class Track:
         
 
 
-    def shift(self, direction, vel):
+    def shift(self, direction, vel): #shifts track to keep player in center
         if direction == "U":
             self. y -= vel
         if direction == "D":
