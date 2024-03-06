@@ -467,7 +467,7 @@ class User_car(Base_car):
             min_vel = 1
         else:
             min_vel = -1
-        self.vel = min(-self.vel/3, min_vel)
+        self.vel = min(-self.vel/2, min_vel)
         self.move(current_track)
     def change_gear(self, gear):
         self.gear = gear
