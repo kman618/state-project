@@ -34,7 +34,7 @@ font = py.font.SysFont("comicsans", 36)
 
 
 #-----------------------------------------------------------------------[]
-#CLASSES testing to see how well pushes / commits work
+#CLASSES 
 #-----------------------------------------------------------------------[]
 
 class Finish:
