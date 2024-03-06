@@ -68,7 +68,7 @@ py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I
 py.mixer.music.play(-1)
 
 
-window = py.display.set_mode(windowsize, py.RESIZABLE)
+window = py.display.set_mode(windowsize)
 
 
 done = False
@@ -204,7 +204,7 @@ class Game_info:
         self.level_started = False
         self.level_started_time = 0
         self.total_time = 0
-        
+        self.conglomerate_time = 0
         self.best_time = 0
     def level_next(self):
         self.level += 1
@@ -212,12 +212,14 @@ class Game_info:
         self.level_started_time = 0
         finish_line.level_pos(self.level)
         player_one_car.level_reset()
+        self.conglomerate_time = self.time_in_level()
         if self.level >= 4:
             self.finished()
     def reset_levels(self):
         self.level = 1
         self.level_started = False
         self.level_started_time = 0
+        
 
     def finished(self):
         return self.level > self.LEVELS
@@ -463,17 +465,12 @@ class User_car(Base_car):
         # This didn't work because this wasn't set up how I intended for it to be... It works by checking the changes overlap area based on the hypothetical change in position (and thus overlap) between the two masks. It changes x and y separately from each other.
         # The reason it didn't work is because I wasn't expecting the code to be organized this way. The masks are not properties of the objects/classes themselves, so calculating with them
         # is annoying to say the least. This is because I can't just pass in the two objects I'm trying to detect collisions from and have them work. I'd need a way to pass in the masks dynamically, and yet separately (given the current code structure).
-        #if self.vel < 0 and use == True:
-
-        #    min_vel = 1
-        #    self.vel = max(1, self.vel + .1)
-
-        #else:
-        #    use = True
-        #min_vel = -1
-        self.vel *= -1
+        if self.vel < 0:
+            min_vel = 1
+        else:
+            min_vel = -1
+        self.vel = min(-1 * self.vel/2, min_vel)
         self.move(current_track)
-        self.vel *= .45
     def change_gear(self, gear):
         self.gear = gear
         # my vision for this is that in manual mode (in the input section of the game loop) the number pad keys would correspond to different gears.
@@ -745,7 +742,7 @@ close_button_img = py.image.load("close_button.png")
 close_button_img = scale_images(close_button_img, .8)
 close_button = Button(close_button_img, 65,65, "", True, font)
 instructions_screen_img = py.image.load("instructions_screen.png")
-instructions_screen_img = scale_images(instructions_screen_img, .65)
+instructions_screen_img = scale_images(instructions_screen_img, 1)
 instructions_screen_button = Button(instructions_screen_img, half_width, half_height, "", False, font)
 blank_button_img = py.image.load("blank_button.png")
 next_button = Button(blank_button_img, half_width + (100 * window_scale_x), half_height + (100 * window_scale_y), "NEXT LEVEL", False, fontsmall)
@@ -775,6 +772,7 @@ gear_text = font.render('[G: ' + player_one_car.gear + "MPH: " + player_one_car.
 track_one_best = []
 track_two_best = []
 track_three_best = []
+conglomerate_times = []
 
 
 #-----------------------------------------------------------------------[]
@@ -936,7 +934,7 @@ def main_game_loop():
             # build a menu for finish  =finish()
             game_info.total_time = game_info.time_in_level()
             if game_info.level == 1:
-                level_list = track_one_best 
+                level_list = track_one_best
             elif game_info.level == 2:
                 level_list = track_two_best
             elif game_info.level == 3:
@@ -1219,8 +1217,17 @@ def end_screen():
             if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                 freeplay_button.checkClick(py.mouse.get_pos())
                 main_menu_button.checkClick(py.mouse.get_pos())
+        best_one = min(track_one_best)
+        best_two = min(track_two_best)
+        best_three = min(track_three_best)
+        
+        print(best_one_two)
+        game_info.conglomerate_time = min(track_one_best) + min(track_two_best) + min(track_three_best)
         levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
         levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
+        conglomerate_time_text = font.render("Total Time: " + str(game_info.conglomerate_time), True, (255,255,255))
+        conglomerate_time_rect = conglomerate_time_text.get_rect(center=(window.get_width()/2, window.get_height()/3))
+        window.blit(conglomerate_time_text, conglomerate_time_rect)
         window.blit(levels_c_text, levels_c_rect)
         freeplay_button.update()
         freeplay_button.colorShift(py.mouse.get_pos())
