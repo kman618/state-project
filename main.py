@@ -523,6 +523,7 @@ transparent_button_img = py.image.load("transparent_button.png")
 level_one_button = Button(transparent_button_img, half_width, window.get_height()/3.2, "Intro Course", False, fontmedium)
 level_two_button = Button(transparent_button_img, half_width, window.get_height()/2, "The Grotto", False, fontmedium)
 level_three_button = Button(transparent_button_img, half_width, window.get_height()/2 + (100  * window_scale_y), "The Red Shore", False, fontmedium)
+main_menu_button2 = Button(main_menu_img, half_width, half_height + (200 * window_scale_y), "Main Menu", False, fontmedium)
 #LEVEL TRACK OBJECTS
 
 track_one = Track(340, 240, RACETRACK)
@@ -669,7 +670,8 @@ def main_game_loop():
                 if event.key == py.K_r:
                     game_info.redo_level(current_track)
                     finish_line.level_pos(game_info.level)
-        
+                if event.key == py.K_p:
+                    level_select()
         if game_info.level == 1:
             current_track = track_one
             if player_one_car.collide(TRACKBORDER_MASK, current_track.x, current_track.y) != None:
@@ -804,15 +806,14 @@ def hover_text_display(car_button):
         car3_info_text_s = font.render("Speed: 8", True, WHITE)
         car3_info_text_a = font.render("Acceleration: 10", True, WHITE)
         car3_info_text_t = font.render("Turning: 5.5", True, WHITE)
-        car3_info_text_special = font.render("Special: Sticky Hook", True, WHITE)
+        
         car3_info_text_S_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos))
         car3_info_text_A_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (35 * window_scale_y)))
         car3_info_text_T_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (70 * window_scale_y)))
-        car3_info_text_Special_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (105 * window_scale_y)))
         window.blit(car3_info_text_s, car3_info_text_S_rect)
         window.blit(car3_info_text_a, car3_info_text_A_rect)
         window.blit(car3_info_text_t, car3_info_text_T_rect)
-        window.blit(car3_info_text_special, car3_info_text_Special_rect)
+
 #--- swap cars menu
             
 def swap_cars_menu(current_car):
@@ -978,8 +979,13 @@ def end_screen():
             game_info.reset_levels()
 def level_select():
     global runme
+    global main_menu_run
     done = False
     while not done:
+        level_one_button.clicked = False
+        level_two_button.clicked = False
+        level_three_button.clicked = False
+        main_menu_button2.clicked = False
         window.fill((0,0,0))
         for event in py.event.get():
             if event.type == py.QUIT:
@@ -989,6 +995,10 @@ def level_select():
                 level_one_button.checkClick(py.mouse.get_pos())
                 level_two_button.checkClick(py.mouse.get_pos())
                 level_three_button.checkClick(py.mouse.get_pos())
+                main_menu_button2.checkClick(py.mouse.get_pos())
+            if event.type == py.KEYDOWN:
+                if event.key == py.K_p:
+                    done = True
         level_select_page_t = font.render("Select Level", True, (255,255,255))
         level_select_page_r = level_select_page_t.get_rect(center=(window.get_width()/2, window.get_height()/6))
         window.blit(level_select_page_t, level_select_page_r)
@@ -998,7 +1008,29 @@ def level_select():
         level_one_button.colorShift(py.mouse.get_pos())
         level_two_button.colorShift(py.mouse.get_pos())
         level_three_button.colorShift(py.mouse.get_pos())
+        main_menu_button2.update()
+        main_menu_button2.colorShift(py.mouse.get_pos())
         py.display.update()
+        if level_one_button.clicked == True:
+            done = True
+            game_info.level = 1
+            current_track = track_one
+            game_info.redo_level(current_track)
+        if level_two_button.clicked == True:
+            done = True
+            game_info.level = 2
+            current_track = track_two
+            game_info.redo_level(current_track)
+        if level_three_button.clicked == True:
+            done = True
+            game_info.level = 3
+            current_track = track_three
+            game_info.redo_level(current_track)
+        if main_menu_button2.clicked == True:
+            done = True
+            main_menu_run = True
+            runme = False
+            game_info.reset_levels()
 player_one_car.reverse = False #little failsafe
 
 
