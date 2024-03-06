@@ -1217,6 +1217,11 @@ def end_screen():
             if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                 freeplay_button.checkClick(py.mouse.get_pos())
                 main_menu_button.checkClick(py.mouse.get_pos())
+        best_one = min(track_one_best)
+        best_two = min(track_two_best)
+        best_three = min(track_three_best)
+        
+        print(best_one_two)
         game_info.conglomerate_time = min(track_one_best) + min(track_two_best) + min(track_three_best)
         levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
         levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
