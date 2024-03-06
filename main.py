@@ -104,8 +104,8 @@ class Finish: #finish line code
             self.x = 645 * window_scale_x - 100 + (340 - 150) + 50
             self.y = 2255 * window_scale_y + (240 - 25)
         elif self.level == 3:
-            self.x = 645 * window_scale_x  + (340 - 150) + 200
-            self.y = 2255 * window_scale_y + (240 - 25)
+            self.x = 325 * window_scale_x  + (340 - 150) + (10 * window_scale_y) 
+            self.y = 1127.5 * window_scale_y + (240 - 25) + (330 * window_scale_y) 
     def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
@@ -374,14 +374,30 @@ class Base_car:
         ybound = (240 * window_scale_y)
         if self.x - self.velX <= xbound: 
             self.current_track.shift("L", abs(self.velX))
+            for car in enemyList: #//
+                car.shift("L", abs(self.velX)) #//
+                for checkpoint in car.enemyCheckpointList: #//
+                    checkpoint.shift("L", abs(self.velX)) #//
         elif self.x - self.velX >= (700 * window_scale_x) - xbound:   
             self.current_track.shift("R", abs(self.velX))
+            for car in enemyList: #//
+                car.shift("R", abs(self.velX)) #//
+                for checkpoint in car.enemyCheckpointList: #//
+                    checkpoint.shift("R", abs(self.velX)) #//
         else:
             self.x -= velX
         if self.y - self.velY <= ybound:
             self.current_track.shift("U", -1 * abs(self.velY))
+            for car in enemyList: #//
+                car.shift("D", abs(self.velY)) #//
+                for checkpoint in car.enemyCheckpointList: #//
+                    checkpoint.shift("D", abs(self.velY)) #//
         elif self.y - self.velY >= (500 * window_scale_x) - ybound:
             self.current_track.shift("D", -1 * abs((self.velY)))
+            for car in enemyList: #//
+                car.shift("U", abs(self.velY)) #//
+                for checkpoint in car.enemyCheckpointList:#//
+                    checkpoint.shift("U", abs(self.velY))#//
         else:
             self.y -= velY
     #accelerates the car
@@ -451,7 +467,7 @@ class User_car(Base_car):
             min_vel = 1
         else:
             min_vel = -1
-        self.vel = min(-self.vel/3, min_vel)
+        self.vel = min(-self.vel/2, min_vel)
         self.move(current_track)
     def change_gear(self, gear):
         self.gear = gear
@@ -465,7 +481,211 @@ class Opponent_car(Base_car):
     IMAGE = CAR2
     starting_pos_x = 400
     starting_pos_y = 400
+    #//
+    def __init__(self,rotation_V, max_V, starting_pos_x, starting_pos_y, starting_gear, car):
+        super().__init__(rotation_V, max_V, starting_pos_x, starting_pos_y, starting_gear, car)
 
+        self.enemyCheckpointList = []
+        self.getCheckpoints()
+        self.currentCheckpointNum = 0
+        self.currentCheckpoint = self.enemyCheckpointList[self.currentCheckpointNum]
+        self.currentCheckpointTouch = py.sprite.Group()
+
+        self.currentCheckpointTouch.add(self.currentCheckpoint)
+        self.image = py.Surface([20,20])
+        self.image.fill((0,0,0))
+        self.image.set_colorkey((0,0,0))
+
+        self.enemyCheckpointHitList = py.sprite.spritecollide(self,self.currentCheckpointTouch,True)
+
+        py.draw.rect(self.image,(0,0,0),[0,0,20,20])
+
+        self.rect = self.image.get_rect()
+
+    def getCheckpoints(self):
+        #//
+        if game_info.level == 1:
+            self.checkpointOne = EnemyCheckpoint(20,20,650,800)
+            self.checkpointTwo = EnemyCheckpoint(20,20,650,2000)
+            self.checkpointThree = EnemyCheckpoint(20,20,1600,2200)
+            self.checkpointFour = EnemyCheckpoint(20,20,1700,1300)
+            self.checkpointFive = EnemyCheckpoint(20,20,3000,800)
+            self.checkpointSix = EnemyCheckpoint(20,20,3200,1500)
+            self.checkpointSeven = EnemyCheckpoint(20,20,3700,1900)
+            self.checkpointEight = EnemyCheckpoint(20,20,4000,3500)
+            self.checkpointNine = EnemyCheckpoint(20,20,2000,3750)
+            self.checkpointTen = EnemyCheckpoint(20,20,1600,3350)
+            self.checkpointEleven = EnemyCheckpoint(20,20,1000,3850)
+            self.enemyCheckpointList.append(self.checkpointOne)
+            self.enemyCheckpointList.append(self.checkpointTwo)
+            self.enemyCheckpointList.append(self.checkpointThree)
+            self.enemyCheckpointList.append(self.checkpointFour)
+            self.enemyCheckpointList.append(self.checkpointFive)
+            self.enemyCheckpointList.append(self.checkpointSix)
+            self.enemyCheckpointList.append(self.checkpointSeven)
+            self.enemyCheckpointList.append(self.checkpointEight)
+            self.enemyCheckpointList.append(self.checkpointNine)
+            self.enemyCheckpointList.append(self.checkpointTen)
+            self.enemyCheckpointList.append(self.checkpointEleven)
+
+        #//    
+    
+    def shift(self, direction, vel):
+        if direction == "U":
+            self.y -= vel
+        if direction == "D":
+            self.y += vel
+        if direction == "L":
+            self.x += vel
+        if direction == "R":
+            self.x -= vel
+
+    def pathing(self,mask,x,y):
+        offsetx = int(self.x - 30)
+        offsety = int(self.y)
+        onPath = self.car_mask.overlap(self.car_mask, (offsetx, offsety))
+        return onPath
+    
+    def cpu_move(self):
+        #finds angular movement using trig and allowes for movement one way in any angle
+        #had issues with angles, had to convert to radians
+        radians = m.radians(self.angle)
+        #switched sin and cos and it fixed the issue
+        velX = ((m.sin(radians)) * self.vel)
+        velY = ((m.cos(radians)) * self.vel)
+        #allows for adding to mask
+        self.velX = velX
+        self.velY = velY
+        
+        # Update position
+        self.x -= velX
+        self.y -= velY
+    
+    def updateHit(self):
+        self.currentCheckpoint = self.enemyCheckpointList[self.currentCheckpointNum]
+        if len(self.currentCheckpointTouch) == 0:
+            self.currentCheckpointTouch.add(self.currentCheckpoint)
+        self.enemyCheckpointHitList = py.sprite.spritecollide(self,self.currentCheckpointTouch,True)
+        
+    #accelerates the car
+    def cpu_update_forward(self):
+        self.vel = min(self.vel + self.acc, self.max_V)
+        self.cpu_move()
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+    def bounce(self):
+        self.vel = -self.vel/2
+        self.cpu_move()
+
+    def cpu_update_reverse(self, forward):
+        
+        if self.vel > 0 + self.dec or self.gear == "R": #keeps it from updating velocity to a negative while stopped if braking in nuetral
+            self.vel = max(self.vel - self.dec, -1 * self.max_D)
+        if forward == False:
+            #makes it so you have to be in reverse to back up, smooths out breakings
+            if self.vel <= 0 + self.dec:
+                self.stats()
+                if self.gear == "R":
+                    self.cpu_move()
+            elif self.vel > 0 + self.dec:
+                self.cpu_move()
+
+    def update_slow(self):
+        self.forward = False
+        if self.vel > 0:
+            self.vel = max(self.vel - self.acc/1.5, 0)
+        elif self.vel < 0:
+            self.vel = min(self.vel + self.acc/1, 0)
+    
+    def tryToPath(self):
+        self.stats()
+        self.forward = True
+        self.moving = False
+        self.forward = False
+        self.reverse = False
+
+        self.desiredAngle = -m.degrees(m.atan2(self.currentCheckpoint.rect.y - self.y, self.currentCheckpoint.rect.x - self.x))
+        self.desiredAngle -= 90
+
+        if self.angle > 180:
+            self.angle -= 360
+        elif self.angle < -180:
+            self.angle += 360
+
+        angleDifference = self.desiredAngle - self.angle
+
+        if angleDifference > 180:
+            angleDifference -= 360
+        elif angleDifference < -180:
+            angleDifference += 360
+
+        if self.desiredAngle != self.angle:
+            if self.desiredAngle < self.angle and self.desiredAngle + 10 > self.angle:
+                self.car_rotation(right=False)
+                self.car_rotation(left=False)
+            elif self.desiredAngle > self.angle and self.desiredAngle - 10 < self.angle:
+                self.car_rotation(right=False)
+                self.car_rotation(left=False)
+            else:
+                if angleDifference < 0:
+                    self.car_rotation(right=True)
+                else:
+                    self.car_rotation(left=True)
+        else:
+            self.car_rotation(right=False)
+            self.car_rotation(left=False)
+
+        self.moving = True
+        self.forward = True
+        self.reverse = False
+        self.cpu_update_forward()
+        #deceleration when not accelerating or boosting
+        if self.moving == False:
+            self.update_slow()
+
+class EnemyCheckpoint(py.sprite.Sprite):
+    def __init__(self,width,height,x,y):
+        super().__init__()
+
+        self.width = width
+        self.height = height
+
+        self.image = py.Surface([width,height])
+        self.image.fill((0,0,0))
+        self.image.set_colorkey((0,0,0))
+
+        py.draw.rect(self.image,(255,0,0),[0,0,width,height])
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.floatX = self.rect.x
+        self.floatY = self.rect.y
+        
+        self.checkpointMask = py.mask.from_surface(self.image)
+
+    def shift(self, direction, vel):
+        if direction == "U":
+            self.floatY -= vel
+            self.rect.y = round(self.floatY)
+        if direction == "D":
+            self.floatY += vel
+            self.rect.y = round(self.floatY)
+        if direction == "L":
+            self.floatX += vel
+            self.rect.x = round(self.floatX)
+        if direction == "R":
+            self.floatX -= vel
+            self.rect.x = round(self.floatX)
+
+    #enable below to see enemy checkpoints
+    
+    def draw(self,screen):
+        py.draw.rect(screen,(255,0,0),[self.rect.x,self.rect.y,self.width,self.height])
+    
+
+#//
 
 
 
@@ -481,10 +701,18 @@ WHITE = (255,255,255)
 #--------------------------------------------------------------------------[]
 player_one_car = User_car(4, 10, half_width, half_height, "N", 1)
 player_one_car.stats()
-cpu_car = Opponent_car(5,3.5, 400,400, "N", 2)
+
 #game class into object
 game_info = Game_info()
+#//
+enemyList = []
+for i in range(2):
+    enemyCar = Opponent_car(5,3.5,(i*250) + 475,(i*100) + 350,"N",r.randint(1,3))
 
+    enemyList.append(enemyCar)
+    enemyCar.stats()
+
+#//
 #button objects
 #main screen buttons
 play_button_img = py.image.load("transparent_button.png")
@@ -551,6 +779,11 @@ track_three_best = []
 def drawing(surface, player_car, track):
     track.update(window)
     player_car.draw(surface)
+    if game_info.level == 1:
+        for car in enemyList:#//
+            car.draw(surface)#//
+            #for enemy in car.enemyCheckpointList:#//
+                #enemy.draw(window) #//
     surface.blit(gear_text, ((surface.get_width() - gear_text.get_width() - 15), 10))
     
 
@@ -605,6 +838,12 @@ def main_game_loop():
         current_track = track_three
     player_one_car.level_reset()
     while not done and runme == True:
+        #//
+        for car in enemyList:
+            car.update()
+            car.updateHit()
+            car.stats()
+        #//
         player_one_car.update()
         if game_info.level == 1 or game_info.level == 2:
             window.fill((0,0 ,0))
@@ -631,7 +870,8 @@ def main_game_loop():
         elif game_info.level == 3:
             current_track = track_three
         drawing(window, player_one_car, current_track)
-        finish_line.update(window)
+        if game_info.level_started == True:
+            finish_line.update(window)
         py.display.update()
         #cpu_car.draw(window)
         #py.display.flip()
@@ -698,6 +938,17 @@ def main_game_loop():
                 level_list = track_three_best
             game_info.get_best(level_list, game_info.total_time)
             level_end_screen()
+        #//
+        for car in enemyList:
+            if car.collide(TRACKBORDER_MASK, track_one.x, track_one.y) != None:
+                car.bounce()
+
+            if len(car.enemyCheckpointHitList) == 0:
+                car.tryToPath()
+            else:
+                if car.currentCheckpointNum + 1 < len(car.enemyCheckpointList):
+                    car.currentCheckpointNum += 1
+        #//
         if game_info.finished() == True:
             end_screen()
             
