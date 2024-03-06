@@ -749,7 +749,7 @@ def main_menu():
 
                     if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                         instructions_screen_button.checkClick(py.mouse.get_pos())
-                        if instructions_screen_button.clicked == False:
+                        if (instructions_screen_button.clicked == False) :
                             run_instruct  = False
                 instructions_screen_button.update()
                 py.display.update()
