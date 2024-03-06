@@ -779,10 +779,11 @@ track_three_best = []
 def drawing(surface, player_car, track):
     track.update(window)
     player_car.draw(surface)
-    for car in enemyList:#//
-        car.draw(surface)#//
-        for enemy in car.enemyCheckpointList:#//
-            enemy.draw(window) #//
+    if game_info.level == 1:
+        for car in enemyList:#//
+            car.draw(surface)#//
+            #for enemy in car.enemyCheckpointList:#//
+                #enemy.draw(window) #//
     surface.blit(gear_text, ((surface.get_width() - gear_text.get_width() - 15), 10))
     
 
