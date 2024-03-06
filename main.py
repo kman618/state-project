@@ -1078,15 +1078,3 @@ py.quit()
 """
 2: Car sometimes gets stuck in a collision zone and is contantly colliding making it impossible to drive the car
 """
-
-
-
-
-
-
-
-
-
-
-
-
