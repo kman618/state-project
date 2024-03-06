@@ -2,12 +2,13 @@ import pygame as py
 import random as r
 import time
 import math as m
-#import necissary functions from game_utilities folder
+#import necessary functions from game_utilities folder
 from game_utitilies import scale_images, rotate_center_img, center_text
 py.init()
 py.font.init()
+py.mixer.init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
 
-#load and scale images 
+
 
 
 #set game window
@@ -32,6 +33,8 @@ RACETRACK = scale_images(py.image.load("track.png"), 1)
 FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400, 50))
 FINISHMASK = py.mask.from_surface(FINISH)
 """
+
+#load and scale images 
 BACKGROUND = py.transform.scale(py.image.load("background_L1.jpg"), windowsize)
 SWAP_BACKGROUND = py.transform.scale(py.image.load("background2.jpg"), windowsize)
 CAR1 = scale_images(py.image.load("track_car1.png"), 1)
@@ -57,7 +60,15 @@ TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
 RACETRACKL3 = py.image.load("track_3.png")
 RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
 FINISHMASK = py.mask.from_surface(FINISH)
+
+#mixer and bg music init and play
+py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I don't expect us to keep this song. I've also got mixer working for sound effects if needed
+py.mixer.music.play(-1)
+
+
 window = py.display.set_mode(windowsize, py.RESIZABLE)
+
+
 done = False
 clock = py.time.Clock()
 fps = 60
@@ -71,7 +82,7 @@ fontsmall = py.font.SysFont("comicsans", int(16 * window_scale_x))
 #CLASSES
 #-----------------------------------------------------------------------[]
 
-class Finish:
+class Finish: #finish line code
     def __init__(self, img):
         self.img = img
         self.level = 1
@@ -93,7 +104,7 @@ class Finish:
         elif self.level == 3:
             self.x = 645 * window_scale_x  + (340 - 150) + 200
             self.y = 2255 * window_scale_y + (240 - 25)
-    def shift(self, direction, vel):
+    def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
         if direction == "D":
@@ -120,7 +131,7 @@ class Track:
         
 
 
-    def shift(self, direction, vel):
+    def shift(self, direction, vel): #shifts track to keep player in center
         if direction == "U":
             self. y -= vel
         if direction == "D":
