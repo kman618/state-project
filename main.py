@@ -9,6 +9,15 @@ py.font.init()
 
 #load and scale images 
 
+
+#set game window
+window_x = 1200
+window_y = 800
+windowsize = (1200,800)
+window_scale_x = window_x / 700
+window_scale_y = window_y / 500
+
+"""
 BACKGROUND = scale_images(py.image.load("background_L1.jpg"), .3)
 SWAP_BACKGROUND = scale_images(py.image.load("background2.jpg"), .15)
 CAR1 = scale_images(py.image.load("track_car1.png"), 1)
@@ -22,17 +31,37 @@ RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 1)
 RACETRACK = scale_images(py.image.load("track.png"), 1)
 FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400, 50))
 FINISHMASK = py.mask.from_surface(FINISH)
-#set game window
-windowsize = (700,500)
-window = py.display.set_mode(windowsize)
+"""
+BACKGROUND = py.transform.scale(py.image.load("background_L1.jpg"), windowsize)
+SWAP_BACKGROUND = py.transform.scale(py.image.load("background2.jpg"), windowsize)
+CAR1 = scale_images(py.image.load("track_car1.png"), 1)
+CAR1 = py.transform.scale(CAR1, (CAR1.get_width() * window_scale_x, CAR1.get_height() * window_scale_y))
+CAR2 = scale_images(py.image.load("track_car2.png"), 1)
+CAR2 = py.transform.scale(CAR2, (CAR2.get_width() * window_scale_x, CAR2.get_height() * window_scale_y))
+LIZARDCAR = scale_images(py.image.load("lizard_car.png"), 1)
+LIZARDCAR = py.transform.scale(LIZARDCAR, (LIZARDCAR.get_width() * window_scale_x, LIZARDCAR.get_height() * window_scale_y))
+TRACKBORDER = scale_images(py.image.load("track_border.png"), 1)
+TRACKBORDER = py.transform.scale(TRACKBORDER, (TRACKBORDER.get_width() * window_scale_x, TRACKBORDER.get_height() * window_scale_y))
+TRACKBORDER_MASK = py.mask.from_surface(TRACKBORDER)
+TRACK2BORDER = py.image.load("level_two.png")
+TRACK2BORDER = py.transform.scale(TRACK2BORDER, (TRACK2BORDER.get_width() * window_scale_x, TRACK2BORDER.get_height() * window_scale_y))
+TRACK2BORDER_MASK = py.mask.from_surface(TRACK2BORDER)
+RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 1)
+RACETRACKL2 = py.transform.scale(RACETRACKL2, (RACETRACKL2.get_width() * window_scale_x, RACETRACKL2.get_height() * window_scale_y))
+RACETRACK = scale_images(py.image.load("track.png"), 1)
+RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_x, RACETRACK.get_height() * window_scale_y))
+FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_scale_x, 50 * window_scale_y))
+
+FINISHMASK = py.mask.from_surface(FINISH)
+window = py.display.set_mode(windowsize, py.RESIZABLE)
 done = False
 clock = py.time.Clock()
 fps = 60
 images = []
 images.append(BACKGROUND)
-font = py.font.SysFont("comicsans", 36)
-fontmedium = py.font.SysFont("comicsans", 22)
-fontsmall = py.font.SysFont("comicsans", 16)
+font = py.font.SysFont("comicsans", int(36 * window_scale_x))
+fontmedium = py.font.SysFont("comicsans", int(22 * window_scale_x))
+fontsmall = py.font.SysFont("comicsans", int(16 * window_scale_x))
 
 #-----------------------------------------------------------------------[]
 #CLASSES
@@ -52,11 +81,11 @@ class Finish:
     def level_pos(self, level):
         self.level = level
         if self.level == 1:
-            self.x = 375
-            self.y = 2360
+            self.x = 375 * window_scale_x - 110
+            self.y = 2360 * window_scale_y - 75
         elif self.level == 2:
-            self.x = 645
-            self.y = 2255
+            self.x = 645 * window_scale_x - 100
+            self.y = 2255 * window_scale_y
     
     def shift(self, direction, vel):
         if direction == "U":
@@ -112,6 +141,7 @@ class Track:
 class Button:
     def __init__(self, image, x, y, text, grow, ownfont):
         self.image = image
+        self.image = py.transform.scale(self.image, (self.image.get_width() * window_scale_x, self.image.get_height() * window_scale_y))
         self.x_pos = x
         self.y_pos = y
         self.text = text
@@ -122,7 +152,9 @@ class Button:
         self.clicked = False
         self.grow = grow
         self.image_normal = image
-        self.image_grow = scale_images(self.image, 1.2)
+        self.image_normal = py.transform.scale(self.image_normal, (self.image_normal.get_width() * window_scale_x, self.image_normal.get_height() * window_scale_y))
+        self.image_grow = scale_images(self.image, .8)
+        self.image_grow = py.transform.scale(self.image_grow, (self.image_grow.get_width() * window_scale_x, self.image_grow.get_height() * window_scale_y))
         self.hovering = False
     def update(self):
         self.colorShift(py.mouse.get_pos()) #allows you to change the text of the button from user input
@@ -152,7 +184,9 @@ class Game_info:
         self.level = Level
         self.level_started = False
         self.level_started_time = 0
-
+        self.total_time = 0
+        
+        self.best_time = 0
     def level_next(self):
         self.level += 1
         self.level_started = False
@@ -185,6 +219,14 @@ class Game_info:
         current_track.x = current_track.start_x
         current_track.y = current_track.start_y
         player_one_car.level_reset()
+    def get_best(self, level_list, time):
+        level_list.append(str(round(time, 2)))
+        self.best_time = min(level_list)
+    def get_level_name(self):
+        if self.level == 1:
+            self.level_name = "Intro Course"
+        elif self.level == 2:
+            self.level_name = " The Grotto"
 
     
 #-------------------------{}
@@ -301,20 +343,22 @@ class Base_car:
         #allows for adding to mask
         self.velX = velX
         self.velY = velY
+        self.velX *= window_scale_x
+        self.velY *= window_scale_y
         #played around and switched to -, radians come back negative sometimes which was no bueno so it was negative, had to play w it
         self.current_track = current_track
         #Shifts track down rather than car up if car is at a certain boundary
-        xbound = 320
-        ybound = 220
+        xbound = (340 * window_scale_x)
+        ybound = (240 * window_scale_y)
         if self.x - self.velX <= xbound: 
             self.current_track.shift("L", abs(self.velX))
-        elif self.x - self.velX >= 700 - xbound:   
+        elif self.x - self.velX >= (700 * window_scale_x) - xbound:   
             self.current_track.shift("R", abs(self.velX))
         else:
             self.x -= velX
         if self.y - self.velY <= ybound:
             self.current_track.shift("U", -1 * abs(self.velY))
-        elif self.y - self.velY >= 500 - ybound:
+        elif self.y - self.velY >= (500 * window_scale_x) - ybound:
             self.current_track.shift("D", -1 * abs((self.velY)))
         else:
             self.y -= velY
@@ -408,7 +452,7 @@ class Opponent_car(Base_car):
 #variables for commonly used things
 half_width = window.get_width()/2
 half_height = window.get_height()/2
-car_button_x_placement = half_width - 100
+car_button_x_placement = half_width - (100 * window_scale_y)
 WHITE = (255,255,255)
 #--------------------------------------------------------------------------[]
 #OBJECTS
@@ -421,11 +465,11 @@ game_info = Game_info()
 
 #button objects
 #main screen buttons
-play_button_img = py.image.load("play_button.png")
+play_button_img = py.image.load("transparent_button.png")
 play_button = Button(play_button_img, half_width, window.get_height()/2.4, "PLAY", False, font)
-car_button_img = py.image.load("change_cars.png")
-car_button = Button(car_button_img, half_width, window.get_height()/ 1.5 + 60, "SWAP CAR", False, font)
-instructions_button_img = py.image.load("instructions_button.png")
+car_button_img = py.image.load("transparent_button.png")
+car_button = Button(car_button_img, half_width, window.get_height()/ 1.5 + (60 * window_scale_y), "SWAP CAR", False, font)
+instructions_button_img = py.image.load("transparent_button.png")
 instructions_button = Button(instructions_button_img, half_width, window.get_height()/1.68, "Instructions", False, font)
 #---------------------- car 1
 car1_button_img = py.image.load("track_car1.png")
@@ -434,11 +478,11 @@ car1_button = Button(car1_button_img, car_button_x_placement, window.get_height(
 #----------------------- car 2
 car2_button_img = py.image.load("track_car2.png")
 car2_button_img = py.transform.rotate(car2_button_img, 90)
-car2_button = Button(car2_button_img, car_button_x_placement, half_height, "", True, font)
+car2_button = Button(car2_button_img, car_button_x_placement, int(half_height + int((1 * (window_scale_y ** 7)))), "", True, font)
 #----------------------- car 3
 car3_button_img = py.image.load("lizard_car.png")
 car3_button_img = py.transform.rotate(car3_button_img, 90)
-car3_button = Button(car3_button_img, car_button_x_placement, window.get_height()/ 1.5, "", True, font)
+car3_button = Button(car3_button_img, car_button_x_placement, int((window.get_height() / 1.5) + int((2 * (window_scale_y ** 7)))), "", True, font)
 
 #------ menu functionality buttons
 close_button_img = py.image.load("close_button.png")
@@ -448,8 +492,8 @@ instructions_screen_img = py.image.load("instructions_screen.png")
 instructions_screen_img = scale_images(instructions_screen_img, .65)
 instructions_screen_button = Button(instructions_screen_img, half_width, half_height, "", False, font)
 blank_button_img = py.image.load("blank_button.png")
-next_button = Button(blank_button_img, half_width + 100, half_height + 100, "NEXT LEVEL", False, fontsmall)
-redo_level_button = Button(blank_button_img, half_width - 100, half_height + 100, "RETRY", False, fontmedium)
+next_button = Button(blank_button_img, half_width + (100 * window_scale_x), half_height + (100 * window_scale_y), "NEXT LEVEL", False, fontsmall)
+redo_level_button = Button(blank_button_img, half_width - (100* window_scale_x), half_height + (100 * window_scale_y), "RETRY", False, fontmedium)
 
 #LEVEL TRACK OBJECTS
 track_one = Track(150, 25, RACETRACK)
@@ -460,7 +504,10 @@ finish_line = Finish(FINISH)
 gear_text = font.render('[G: ' + player_one_car.gear + "MPH: " + player_one_car.speed + " L: " + str(game_info.level) + "]", True, WHITE)
 
 
+# initialize the lists to contain course records
 
+track_one_best = []
+track_two_best = []
 
 
 #-----------------------------------------------------------------------[]
@@ -508,9 +555,12 @@ def move_player(player_car, current_track):
 #--------------------------------------{}
 #main game loop in a function to allow multiple main game loops for a menu screen
 def main_game_loop():
+    global track_one_best
+    global track_two_best
     done = False
     finish_line.update(window)
     global main_menu_run
+    
     if game_info.level == 1:
         current_track = track_one
     elif game_info.level == 2:
@@ -545,7 +595,8 @@ def main_game_loop():
         #py.display.flip()
         #main event loop
         while not game_info.level_started:
-            center_text(window, font, f"Press any key to intitiate race {game_info.level}")
+            game_info.get_level_name()
+            center_text(window, fontmedium, f"Press any key to intitiate race {game_info.level_name}")
             py.display.update()
             for event in py.event.get():
                 if event.type == py.QUIT:
@@ -574,6 +625,9 @@ def main_game_loop():
                         current_track = track_one
                     elif game_info.level == 2:
                         current_track = track_two
+                if event.key == py.K_s:
+                    game_info.redo_level(current_track)
+                    finish_line.level_pos(game_info.level)
         
         if game_info.level == 1:
             current_track = track_one
@@ -586,6 +640,12 @@ def main_game_loop():
                 player_one_car.bounce(current_track)
         if player_one_car.collide(FINISHMASK, finish_line.x, finish_line.y) != None:
             # build a menu for finish  =finish()
+            game_info.total_time = game_info.time_in_level()
+            if game_info.level == 1:
+                level_list = track_one_best 
+            elif game_info.level == 2:
+                level_list = track_two_best
+            game_info.get_best(level_list, game_info.total_time)
             level_end_screen()
         
 #-------------------------------{}
@@ -608,9 +668,9 @@ def main_menu():
         m_text = font.render("Main Menu", True, (WHITE))
         m_rect = m_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
         main_menu_background = py.image.load("main_menu_background.png")
-        main_menu_background = py.transform.scale(main_menu_background, (350, 450))
+        main_menu_background = py.transform.scale(main_menu_background, (350 * window_scale_x, 450 * window_scale_y))
         main_menu_background_rect = main_menu_background.get_rect(center=(window.get_width()/2, window.get_height()/2))
-        window.blit(main_menu_background, main_menu_background_rect)
+        #window.blit(main_menu_background, main_menu_background_rect)
         for event in py.event.get():
             if event.type == py.QUIT:
                 py.quit()
@@ -672,11 +732,11 @@ def reset_car_button(car_button):
 def hover_text_display(car_button):
     if car_button == 1:
         car1_info_text_s = font.render("Speed: 10", True, WHITE)
-        car1_info_text_S_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + 175, car1_button.y_pos))
+        car1_info_text_S_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + (175 * window_scale_x), car1_button.y_pos))
         car1_info_text_a = font.render("Acceleration: 6", True, WHITE)
-        car1_info_text_A_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + 175, car1_button.y_pos + 35))
+        car1_info_text_A_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + (175 * window_scale_x), car1_button.y_pos + (35 * window_scale_y)))
         car1_info_text_t = font.render("Turning: 4", True, WHITE)
-        car1_info_text_T_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + 175, car1_button.y_pos + 70))
+        car1_info_text_T_rect = car1_info_text_s.get_rect(center=(car1_button.x_pos + (175 * window_scale_x), car1_button.y_pos + (70 * window_scale_y)))
         window.blit(car1_info_text_s, car1_info_text_S_rect)
         window.blit(car1_info_text_a, car1_info_text_A_rect)
         window.blit(car1_info_text_t, car1_info_text_T_rect)
@@ -684,9 +744,9 @@ def hover_text_display(car_button):
         car2_info_text_s = font.render("Speed: 12", True, WHITE)
         car2_info_text_a = font.render("Acceleration: 4.5", True, WHITE)
         car2_info_text_t = font.render("Turning: 3.75", True, WHITE)
-        car2_info_text_S_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + 175, car2_button.y_pos))
-        car2_info_text_A_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + 175, car2_button.y_pos + 35))
-        car2_info_text_T_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + 175, car2_button.y_pos + 70))
+        car2_info_text_S_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + (175 * window_scale_x), car2_button.y_pos))
+        car2_info_text_A_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + (175 * window_scale_x), car2_button.y_pos + (35 * window_scale_y)))
+        car2_info_text_T_rect = car2_info_text_s.get_rect(center=(car2_button.x_pos + (175 * window_scale_x), car2_button.y_pos + (70 * window_scale_y)))
         window.blit(car2_info_text_s, car2_info_text_S_rect)
         window.blit(car2_info_text_a, car2_info_text_A_rect)
         window.blit(car2_info_text_t, car2_info_text_T_rect)
@@ -695,10 +755,10 @@ def hover_text_display(car_button):
         car3_info_text_a = font.render("Acceleration: 10", True, WHITE)
         car3_info_text_t = font.render("Turning: 5.5", True, WHITE)
         car3_info_text_special = font.render("Special: Sticky Hook", True, WHITE)
-        car3_info_text_S_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + 175, car3_button.y_pos))
-        car3_info_text_A_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + 175, car3_button.y_pos + 35))
-        car3_info_text_T_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + 175, car3_button.y_pos + 70))
-        car3_info_text_Special_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + 175, car3_button.y_pos + 105))
+        car3_info_text_S_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos))
+        car3_info_text_A_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (35 * window_scale_y)))
+        car3_info_text_T_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (70 * window_scale_y)))
+        car3_info_text_Special_rect = car3_info_text_s.get_rect(center=(car3_button.x_pos + (175 * window_scale_x), car3_button.y_pos + (105 * window_scale_y)))
         window.blit(car3_info_text_s, car3_info_text_S_rect)
         window.blit(car3_info_text_a, car3_info_text_A_rect)
         window.blit(car3_info_text_t, car3_info_text_T_rect)
@@ -718,17 +778,17 @@ def swap_cars_menu(current_car):
         change_cars_run = True
         if current_car == 1:
             car1_button.text = "Current:"
-            car1_button.text_rect = car1_button.text_display.get_rect(center=(car1_button.x_pos -150, car1_button.y_pos))
+            car1_button.text_rect = car1_button.text_display.get_rect(center=(car1_button.x_pos -(150 * window_scale_x), car1_button.y_pos))
             reset_car_button(car2_button)
             reset_car_button(car3_button)
         elif current_car == 2:
             car2_button.text = "Current:"
-            car2_button.text_rect = car2_button.text_display.get_rect(center=(car2_button.x_pos -150, car2_button.y_pos))
+            car2_button.text_rect = car2_button.text_display.get_rect(center=(car2_button.x_pos -(150 * window_scale_x), car2_button.y_pos))
             reset_car_button(car1_button)
             reset_car_button(car3_button)
         elif current_car == 3:
             car3_button.text = "Current:"
-            car3_button.text_rect = car3_button.text_display.get_rect(center=(car3_button.x_pos -150, car3_button.y_pos))
+            car3_button.text_rect = car3_button.text_display.get_rect(center=(car3_button.x_pos -(150 * window_scale_x), car3_button.y_pos))
             reset_car_button(car1_button)
             reset_car_button(car2_button)
         else:
@@ -787,7 +847,6 @@ def level_end_screen():
     done = False
     global change_cars_run
     global main_menu_run
-    print(game_info.level)
     if game_info.level == 1:
         current_track = track_one
     elif game_info.level == 2:
@@ -808,7 +867,20 @@ def level_end_screen():
         next_button.colorShift(py.mouse.get_pos())
         redo_level_button.update()
         redo_level_button.colorShift(py.mouse.get_pos())
+        if game_info.level == 1:
+            level_text_content = "Intro Course"
+        elif game_info.level == 2:
+            level_text_content = "The Grotto"
 
+        level_text = font.render(level_text_content, True, (255,255,255))
+        level_text_rect = level_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
+        time_text = font.render("Time: " + str(round(game_info.total_time, 2)), True, (255,255,255))
+        time_rect = time_text.get_rect(center=(window.get_width()/2, window.get_height()/2.6))
+        best_time_text = font.render("Best: " + str(game_info.best_time), True, (255,255,255))
+        best_time_rect = best_time_text.get_rect(center=(window.get_width()/2, window.get_height()/2))
+        window.blit(best_time_text, best_time_rect)
+        window.blit(time_text, time_rect)
+        window.blit(level_text, level_text_rect)
         if next_button.clicked == True:
             done = True
             game_info.level_next()
