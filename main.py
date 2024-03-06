@@ -49,7 +49,7 @@ TRACKBORDER_MASK = py.mask.from_surface(TRACKBORDER)
 TRACK2BORDER = py.image.load("level_two.png")
 TRACK2BORDER = py.transform.scale(TRACK2BORDER, (TRACK2BORDER.get_width() * window_scale_x, TRACK2BORDER.get_height() * window_scale_y))
 TRACK2BORDER_MASK = py.mask.from_surface(TRACK2BORDER)
-RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 1)
+RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 2)
 RACETRACKL2 = py.transform.scale(RACETRACKL2, (RACETRACKL2.get_width() * window_scale_x, RACETRACKL2.get_height() * window_scale_y))
 RACETRACK = scale_images(py.image.load("track.png"), 1)
 RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_x, RACETRACK.get_height() * window_scale_y))
@@ -99,7 +99,7 @@ class Finish: #finish line code
             self.x = 375 * window_scale_x - 110 + (340 - 150)
             self.y = 2360 * window_scale_y - 75 + (240 - 25)
         elif self.level == 2:
-            self.x = 645 * window_scale_x - 100 + (340 - 150)
+            self.x = 645 * window_scale_x - 100 + (340 - 150) + 50
             self.y = 2255 * window_scale_y + (240 - 25)
         elif self.level == 3:
             self.x = 645 * window_scale_x  + (340 - 150) + 200
@@ -519,6 +519,10 @@ freeplay_button_img = py.image.load("transparent_button.png")
 freeplay_button = Button(freeplay_button_img, half_width + (200 * window_scale_x), half_height + (50 * window_scale_y), "Freeplay", False, fontmedium)
 main_menu_img = py.image.load("transparent_button.png")
 main_menu_button = Button(main_menu_img, half_width - (200* window_scale_x), half_height + (50 * window_scale_y), "Main Menu", False, fontmedium)
+transparent_button_img = py.image.load("transparent_button.png")
+level_one_button = Button(transparent_button_img, half_width, window.get_height()/3.2, "Intro Course", False, fontmedium)
+level_two_button = Button(transparent_button_img, half_width, window.get_height()/2, "The Grotto", False, fontmedium)
+level_three_button = Button(transparent_button_img, half_width, window.get_height()/2 + (100  * window_scale_y), "The Red Shore", False, fontmedium)
 #LEVEL TRACK OBJECTS
 
 track_one = Track(340, 240, RACETRACK)
@@ -946,6 +950,8 @@ def end_screen():
     global runme
     done = False
     while not done:
+        freeplay_button.clicked = False
+        main_menu_button.clicked = False
         window.fill((0,0,0))
         for event in py.event.get():
             if event.type == py.QUIT:
@@ -969,9 +975,30 @@ def end_screen():
             done = True
             main_menu_run = True
             runme = False
+            game_info.reset_levels()
 def level_select():
     global runme
-    pass
+    done = False
+    while not done:
+        window.fill((0,0,0))
+        for event in py.event.get():
+            if event.type == py.QUIT:
+                done = True
+                py.quit()
+            if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
+                level_one_button.checkClick(py.mouse.get_pos())
+                level_two_button.checkClick(py.mouse.get_pos())
+                level_three_button.checkClick(py.mouse.get_pos())
+        level_select_page_t = font.render("Select Level", True, (255,255,255))
+        level_select_page_r = level_select_page_t.get_rect(center=(window.get_width()/2, window.get_height()/6))
+        window.blit(level_select_page_t, level_select_page_r)
+        level_one_button.update()
+        level_two_button.update()
+        level_three_button.update()
+        level_one_button.colorShift(py.mouse.get_pos())
+        level_two_button.colorShift(py.mouse.get_pos())
+        level_three_button.colorShift(py.mouse.get_pos())
+        py.display.update()
 player_one_car.reverse = False #little failsafe
 
 
@@ -1004,6 +1031,7 @@ while not done:
     track_three.x = 340
     track_three.y = 240
     player_one_car.level_reset()
+    runme = True
     main_game_loop()
 
     
