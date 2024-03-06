@@ -1221,7 +1221,7 @@ def end_screen():
         levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
         levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
         conglomerate_time_text = font.render("Total Time: " + str(game_info.conglomerate_time), True, (255,255,255))
-        conglomerate_time_rect = conglomerate_time_text.get_rect(center=(window.get_width()/2, window.get_height()/3.5))
+        conglomerate_time_rect = conglomerate_time_text.get_rect(center=(window.get_width()/2, window.get_height()/3))
         window.blit(conglomerate_time_text, conglomerate_time_rect)
         window.blit(levels_c_text, levels_c_rect)
         freeplay_button.update()
