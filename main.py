@@ -54,7 +54,7 @@ FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_sca
 TRACKBORDER3 = py.image.load("track_border_3.png")
 TRACKBORDER3 = py.transform.scale(TRACKBORDER3, (TRACKBORDER3.get_width() * window_scale_x * 2, TRACKBORDER3.get_height() * window_scale_y * 2))
 TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
-RACETRACKL3 = py.image.load("track_border_3.png")
+RACETRACKL3 = py.image.load("track_3.png")
 RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
 FINISHMASK = py.mask.from_surface(FINISH)
 window = py.display.set_mode(windowsize, py.RESIZABLE)
@@ -581,8 +581,10 @@ def main_game_loop():
     player_one_car.level_reset()
     while not done:
         player_one_car.update()
-        window.fill((0,0 ,0))
-        
+        if game_info.level == 1 or game_info.level == 2:
+            window.fill((0,0 ,0))
+        else: 
+            window.fill((170, 0, 0))
         global gear_text
         player_one_car.forward = False
         if player_one_car.drifting == False:
