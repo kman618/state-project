@@ -463,12 +463,17 @@ class User_car(Base_car):
         # This didn't work because this wasn't set up how I intended for it to be... It works by checking the changes overlap area based on the hypothetical change in position (and thus overlap) between the two masks. It changes x and y separately from each other.
         # The reason it didn't work is because I wasn't expecting the code to be organized this way. The masks are not properties of the objects/classes themselves, so calculating with them
         # is annoying to say the least. This is because I can't just pass in the two objects I'm trying to detect collisions from and have them work. I'd need a way to pass in the masks dynamically, and yet separately (given the current code structure).
-        if self.vel < 0:
-            min_vel = 1
-        else:
-            min_vel = -1
-        self.vel = min(-self.vel/2, min_vel)
+        #if self.vel < 0 and use == True:
+
+        #    min_vel = 1
+        #    self.vel = max(1, self.vel + .1)
+
+        #else:
+        #    use = True
+        #min_vel = -1
+        self.vel *= -1
         self.move(current_track)
+        self.vel *= .45
     def change_gear(self, gear):
         self.gear = gear
         # my vision for this is that in manual mode (in the input section of the game loop) the number pad keys would correspond to different gears.
