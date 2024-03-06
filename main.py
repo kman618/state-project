@@ -56,9 +56,11 @@ RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_
 FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_scale_x, 50 * window_scale_y))
 TRACKBORDER3 = py.image.load("track_border_3.png")
 TRACKBORDER3 = py.transform.scale(TRACKBORDER3, (TRACKBORDER3.get_width() * window_scale_x * 2, TRACKBORDER3.get_height() * window_scale_y * 2))
+TRACKBORDER3 = scale_images(TRACKBORDER3, .3)
 TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
 RACETRACKL3 = py.image.load("track_3.png")
 RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
+RACETRACKL3 = scale_images(RACETRACKL3, .3)
 FINISHMASK = py.mask.from_surface(FINISH)
 
 #mixer and bg music init and play
@@ -607,7 +609,7 @@ def main_game_loop():
         if game_info.level == 1 or game_info.level == 2:
             window.fill((0,0 ,0))
         else: 
-            window.fill((170, 0, 0))
+            window.fill((0, 0, 0))
         global gear_text
         player_one_car.forward = False
         if player_one_car.drifting == False:
