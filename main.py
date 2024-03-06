@@ -104,8 +104,8 @@ class Finish: #finish line code
             self.x = 645 * window_scale_x - 100 + (340 - 150) + 50
             self.y = 2255 * window_scale_y + (240 - 25)
         elif self.level == 3:
-            self.x = 645 * window_scale_x  + (340 - 150) + 200
-            self.y = 2255 * window_scale_y + (240 - 25)
+            self.x = 325 * window_scale_x  + (340 - 150) + (10 * window_scale_y) 
+            self.y = 1127.5 * window_scale_y + (240 - 25) + (330 * window_scale_y) 
     def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
@@ -631,7 +631,8 @@ def main_game_loop():
         elif game_info.level == 3:
             current_track = track_three
         drawing(window, player_one_car, current_track)
-        finish_line.update(window)
+        if game_info.level_started == True:
+            finish_line.update(window)
         py.display.update()
         #cpu_car.draw(window)
         #py.display.flip()
