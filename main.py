@@ -2,12 +2,13 @@ import pygame as py
 import random as r
 import time
 import math as m
-#import necissary functions from game_utilities folder
+#import necessary functions from game_utilities folder
 from game_utitilies import scale_images, rotate_center_img, center_text
 py.init()
 py.font.init()
+py.mixer.init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
 
-#load and scale images 
+
 
 
 #set game window
@@ -32,6 +33,8 @@ RACETRACK = scale_images(py.image.load("track.png"), 1)
 FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400, 50))
 FINISHMASK = py.mask.from_surface(FINISH)
 """
+
+#load and scale images 
 BACKGROUND = py.transform.scale(py.image.load("background_L1.jpg"), windowsize)
 SWAP_BACKGROUND = py.transform.scale(py.image.load("background2.jpg"), windowsize)
 CAR1 = scale_images(py.image.load("track_car1.png"), 1)
