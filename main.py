@@ -2,6 +2,7 @@ import pygame as py
 import random as r
 import time
 import math as m
+import config
 #import necessary functions from game_utilities folder
 #ive made changes
 from game_utitilies import scale_images, rotate_center_img, center_text
@@ -11,12 +12,12 @@ py.mixer.init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None
 
 
 
-#set game window
-window_x = 1200
-window_y = 800
-windowsize = (1200,800)
-window_scale_x = window_x / 700
-window_scale_y = window_y / 500
+# #set game window
+# window_x = 1200
+# window_y = 800
+# windowsize = (1200,800)
+# window_scale_x = window_x / 700
+# window_scale_y = window_y / 500
 
 """
 BACKGROUND = scale_images(py.image.load("background_L1.jpg"), .3)
@@ -35,50 +36,50 @@ FINISHMASK = py.mask.from_surface(FINISH)
 """
 
 #load and scale images 
-BACKGROUND = py.transform.scale(py.image.load("background_L1.jpg"), windowsize)
-SWAP_BACKGROUND = py.transform.scale(py.image.load("background2.jpg"), windowsize)
-CAR1 = scale_images(py.image.load("track_car1.png"), 1)
-CAR1 = py.transform.scale(CAR1, (CAR1.get_width() * window_scale_x, CAR1.get_height() * window_scale_y))
-CAR2 = scale_images(py.image.load("track_car2.png"), 1)
-CAR2 = py.transform.scale(CAR2, (CAR2.get_width() * window_scale_x, CAR2.get_height() * window_scale_y))
-LIZARDCAR = scale_images(py.image.load("lizard_car.png"), 1)
-LIZARDCAR = py.transform.scale(LIZARDCAR, (LIZARDCAR.get_width() * window_scale_x, LIZARDCAR.get_height() * window_scale_y))
-TRACKBORDER = scale_images(py.image.load("track_border.png"), 1)
-TRACKBORDER = py.transform.scale(TRACKBORDER, (TRACKBORDER.get_width() * window_scale_x, TRACKBORDER.get_height() * window_scale_y))
-TRACKBORDER_MASK = py.mask.from_surface(TRACKBORDER)
-TRACK2BORDER = py.image.load("level_two.png")
-TRACK2BORDER = py.transform.scale(TRACK2BORDER, (TRACK2BORDER.get_width() * window_scale_x, TRACK2BORDER.get_height() * window_scale_y))
-TRACK2BORDER_MASK = py.mask.from_surface(TRACK2BORDER)
-RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 2)
-RACETRACKL2 = py.transform.scale(RACETRACKL2, (RACETRACKL2.get_width() * window_scale_x, RACETRACKL2.get_height() * window_scale_y))
-RACETRACK = scale_images(py.image.load("track.png"), 1)
-RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_x, RACETRACK.get_height() * window_scale_y))
-FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_scale_x, 50 * window_scale_y))
-TRACKBORDER3 = py.image.load("track_border_3.png")
-TRACKBORDER3 = py.transform.scale(TRACKBORDER3, (TRACKBORDER3.get_width() * window_scale_x * 2, TRACKBORDER3.get_height() * window_scale_y * 2))
-TRACKBORDER3 = scale_images(TRACKBORDER3, .3)
-TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
-RACETRACKL3 = py.image.load("track_3.png")
-RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
-RACETRACKL3 = scale_images(RACETRACKL3, .3)
-FINISHMASK = py.mask.from_surface(FINISH)
+# BACKGROUND = py.transform.scale(py.image.load("background_L1.jpg"), windowsize)
+# SWAP_BACKGROUND = py.transform.scale(py.image.load("background2.jpg"), windowsize)
+# CAR1 = scale_images(py.image.load("track_car1.png"), 1)
+# CAR1 = py.transform.scale(CAR1, (CAR1.get_width() * window_scale_x, CAR1.get_height() * window_scale_y))
+# CAR2 = scale_images(py.image.load("track_car2.png"), 1)
+# CAR2 = py.transform.scale(CAR2, (CAR2.get_width() * window_scale_x, CAR2.get_height() * window_scale_y))
+# LIZARDCAR = scale_images(py.image.load("lizard_car.png"), 1)
+# LIZARDCAR = py.transform.scale(LIZARDCAR, (LIZARDCAR.get_width() * window_scale_x, LIZARDCAR.get_height() * window_scale_y))
+# TRACKBORDER = scale_images(py.image.load("track_border.png"), 1)
+# TRACKBORDER = py.transform.scale(TRACKBORDER, (TRACKBORDER.get_width() * window_scale_x, TRACKBORDER.get_height() * window_scale_y))
+# TRACKBORDER_MASK = py.mask.from_surface(TRACKBORDER)
+# TRACK2BORDER = py.image.load("level_two.png")
+# TRACK2BORDER = py.transform.scale(TRACK2BORDER, (TRACK2BORDER.get_width() * window_scale_x, TRACK2BORDER.get_height() * window_scale_y))
+# TRACK2BORDER_MASK = py.mask.from_surface(TRACK2BORDER)
+# RACETRACKL2 = scale_images(py.image.load("race_track_two.png"), 2)
+# RACETRACKL2 = py.transform.scale(RACETRACKL2, (RACETRACKL2.get_width() * window_scale_x, RACETRACKL2.get_height() * window_scale_y))
+# RACETRACK = scale_images(py.image.load("track.png"), 1)
+# RACETRACK = py.transform.scale(RACETRACK, (RACETRACK.get_width() * window_scale_x, RACETRACK.get_height() * window_scale_y))
+# FINISH =  py.transform.scale(py.image.load("finish_line.png"), (400 * window_scale_x, 50 * window_scale_y))
+# TRACKBORDER3 = py.image.load("track_border_3.png")
+# TRACKBORDER3 = py.transform.scale(TRACKBORDER3, (TRACKBORDER3.get_width() * window_scale_x * 2, TRACKBORDER3.get_height() * window_scale_y * 2))
+# TRACKBORDER3 = scale_images(TRACKBORDER3, .3)
+# TRACKBORDER3_MASK = py.mask.from_surface(TRACKBORDER3)
+# RACETRACKL3 = py.image.load("track_3.png")
+# RACETRACKL3 = py.transform.scale(RACETRACKL3, (RACETRACKL3.get_width() * window_scale_x * 2, RACETRACKL3.get_height() * window_scale_y * 2))
+# RACETRACKL3 = scale_images(RACETRACKL3, .3)
+# FINISHMASK = py.mask.from_surface(FINISH)
 
 #mixer and bg music init and play
 py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I don't expect us to keep this song. I've also got mixer working for sound effects if needed
 py.mixer.music.play(-1)
 
 
-window = py.display.set_mode(windowsize)
+window = py.display.set_mode(config.windowsize)
 
 
 done = False
 clock = py.time.Clock()
 fps = 60
-images = []
-images.append(BACKGROUND)
-font = py.font.SysFont("comicsans", int(36 * window_scale_x))
-fontmedium = py.font.SysFont("comicsans", int(22 * window_scale_x))
-fontsmall = py.font.SysFont("comicsans", int(16 * window_scale_x))
+# images = []
+# images.append(BACKGROUND)
+# font = py.font.SysFont("comicsans", int(36 * window_scale_x))
+# fontmedium = py.font.SysFont("comicsans", int(22 * window_scale_x))
+# fontsmall = py.font.SysFont("comicsans", int(16 * window_scale_x))
 
 #-----------------------------------------------------------------------[]
 #CLASSES
@@ -98,14 +99,14 @@ class Finish: #finish line code
     def level_pos(self, level):
         self.level = level
         if self.level == 1:
-            self.x = 375 * window_scale_x - 110 + (340 - 150)
-            self.y = 2360 * window_scale_y - 75 + (240 - 25)
+            self.x = 375 * config.window_scale_x - 110 + (340 - 150)
+            self.y = 2360 * config.window_scale_y - 75 + (240 - 25)
         elif self.level == 2:
-            self.x = 645 * window_scale_x - 100 + (340 - 150) + 50
-            self.y = 2255 * window_scale_y + (240 - 25)
+            self.x = 645 * config.window_scale_x - 100 + (340 - 150) + 50
+            self.y = 2255 * config.window_scale_y + (240 - 25)
         elif self.level == 3:
-            self.x = 325 * window_scale_x  + (340 - 150) + (10 * window_scale_y) 
-            self.y = 1127.5 * window_scale_y + (240 - 25) + (330 * window_scale_y) 
+            self.x = 325 * config.window_scale_x  + (340 - 150) + (10 * config.window_scale_y) 
+            self.y = 1127.5 * config.window_scale_y + (240 - 25) + (330 * window_scale_y) 
     def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
@@ -694,10 +695,10 @@ class EnemyCheckpoint(py.sprite.Sprite):
 
 #-----------()
 #variables for commonly used things
-half_width = window.get_width()/2
-half_height = window.get_height()/2
-car_button_x_placement = half_width - (100 * window_scale_y)
-WHITE = (255,255,255)
+# half_width = window.get_width()/2
+# half_height = window.get_height()/2
+# car_button_x_placement = half_width - (100 * window_scale_y)
+# WHITE = (255,255,255)
 #--------------------------------------------------------------------------[]
 #OBJECTS
 #--------------------------------------------------------------------------[]
@@ -1221,7 +1222,6 @@ def end_screen():
         best_two = min(track_two_best)
         best_three = min(track_three_best)
         
-        print(best_one_two)
         game_info.conglomerate_time = min(track_one_best) + min(track_two_best) + min(track_three_best)
         levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
         levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
