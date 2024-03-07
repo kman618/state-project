@@ -68,7 +68,7 @@ py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I
 py.mixer.music.play(-1)
 
 
-window = py.display.set_mode(windowsize)
+window = py.display.set_mode(windowsize, py.RESIZABLE)
 
 
 done = False
@@ -104,8 +104,8 @@ class Finish: #finish line code
             self.x = 645 * window_scale_x - 100 + (340 - 150) + 50
             self.y = 2255 * window_scale_y + (240 - 25)
         elif self.level == 3:
-            self.x = 325 * window_scale_x  + (340 - 150) + (10 * window_scale_y) 
-            self.y = 1127.5 * window_scale_y + (240 - 25) + (330 * window_scale_y) 
+            self.x = 645 * window_scale_x  + (340 - 150) + 200
+            self.y = 2255 * window_scale_y + (240 - 25)
     def shift(self, direction, vel): #shifts finish line to stay anchored while screen is moving around
         if direction == "U":
             self. y -= vel
@@ -204,7 +204,7 @@ class Game_info:
         self.level_started = False
         self.level_started_time = 0
         self.total_time = 0
-        self.conglomerate_time = 0
+        
         self.best_time = 0
     def level_next(self):
         self.level += 1
@@ -212,14 +212,16 @@ class Game_info:
         self.level_started_time = 0
         finish_line.level_pos(self.level)
         player_one_car.level_reset()
-        self.conglomerate_time = self.time_in_level()
+        for car in enemyList:
+            car.level_reset()
+            for checkpoint in car.enemyCheckpointList:
+                checkpoint.level_reset()
         if self.level >= 4:
             self.finished()
     def reset_levels(self):
         self.level = 1
         self.level_started = False
         self.level_started_time = 0
-        
 
     def finished(self):
         return self.level > self.LEVELS
@@ -242,6 +244,10 @@ class Game_info:
         current_track.x = current_track.start_x
         current_track.y = current_track.start_y
         player_one_car.level_reset()
+        for car in enemyList:
+            car.level_reset()
+            for checkpoint in car.enemyCheckpointList:
+                checkpoint.level_reset()
     def get_best(self, level_list, time):
         level_list.append(str(round(time, 2)))
         self.best_time = min(level_list)
@@ -469,7 +475,7 @@ class User_car(Base_car):
             min_vel = 1
         else:
             min_vel = -1
-        self.vel = min(-1 * self.vel/2, min_vel)
+        self.vel = min(-self.vel/3, min_vel)
         self.move(current_track)
     def change_gear(self, gear):
         self.gear = gear
@@ -481,12 +487,12 @@ class User_car(Base_car):
 #cpu car/ multiplayer car
 class Opponent_car(Base_car):
     IMAGE = CAR2
-    starting_pos_x = 400
-    starting_pos_y = 400
     #//
     def __init__(self,rotation_V, max_V, starting_pos_x, starting_pos_y, starting_gear, car):
         super().__init__(rotation_V, max_V, starting_pos_x, starting_pos_y, starting_gear, car)
 
+        self.starting_x = starting_pos_x
+        self.starting_y = starting_pos_y
         self.enemyCheckpointList = []
         self.getCheckpoints()
         self.currentCheckpointNum = 0
@@ -504,6 +510,16 @@ class Opponent_car(Base_car):
 
         self.rect = self.image.get_rect()
 
+    def level_reset(self):
+        super().level_reset()
+        self.currentCheckpointTouch.empty()
+        self.enemyCheckpointList = []
+        self.getCheckpoints()
+        self.currentCheckpointNum = 0
+        self.currentCheckpoint = self.enemyCheckpointList[self.currentCheckpointNum]
+
+        self.currentCheckpointTouch.add(self.currentCheckpoint)
+
     def getCheckpoints(self):
         #//
         if game_info.level == 1:
@@ -515,9 +531,9 @@ class Opponent_car(Base_car):
             self.checkpointSix = EnemyCheckpoint(20,20,3200,1500)
             self.checkpointSeven = EnemyCheckpoint(20,20,3700,1900)
             self.checkpointEight = EnemyCheckpoint(20,20,4000,3500)
-            self.checkpointNine = EnemyCheckpoint(20,20,2000,3750)
-            self.checkpointTen = EnemyCheckpoint(20,20,1600,3350)
-            self.checkpointEleven = EnemyCheckpoint(20,20,1000,3850)
+            self.checkpointNine = EnemyCheckpoint(20,20,2200,3550)
+            self.checkpointTen = EnemyCheckpoint(20,20,1400,3250)
+            self.checkpointEleven = EnemyCheckpoint(20,20,1050,3850)
             self.enemyCheckpointList.append(self.checkpointOne)
             self.enemyCheckpointList.append(self.checkpointTwo)
             self.enemyCheckpointList.append(self.checkpointThree)
@@ -529,6 +545,12 @@ class Opponent_car(Base_car):
             self.enemyCheckpointList.append(self.checkpointNine)
             self.enemyCheckpointList.append(self.checkpointTen)
             self.enemyCheckpointList.append(self.checkpointEleven)
+        if game_info.level == 2:
+            self.checkpointOne = EnemyCheckpoint(20,20,650,800)
+            self.enemyCheckpointList.append(self.checkpointOne)
+        if game_info.level == 3:
+            self.checkpointOne = EnemyCheckpoint(20,20,650,800)
+            self.enemyCheckpointList.append(self.checkpointOne)
 
         #//    
     
@@ -650,6 +672,9 @@ class EnemyCheckpoint(py.sprite.Sprite):
     def __init__(self,width,height,x,y):
         super().__init__()
 
+        self.startingX = x
+        self.startingY = y
+
         self.width = width
         self.height = height
 
@@ -666,6 +691,10 @@ class EnemyCheckpoint(py.sprite.Sprite):
         self.floatY = self.rect.y
         
         self.checkpointMask = py.mask.from_surface(self.image)
+
+    def level_reset(self):
+        self.rect.x = self.startingX
+        self.rect.y = self.startingY
 
     def shift(self, direction, vel):
         if direction == "U":
@@ -708,8 +737,10 @@ player_one_car.stats()
 game_info = Game_info()
 #//
 enemyList = []
+enemyCarTypeList = [1,2,3]
+enemyCarTypeList.remove(player_one_car.car)
 for i in range(2):
-    enemyCar = Opponent_car(5,3.5,(i*250) + 475,(i*100) + 350,"N",r.randint(1,3))
+    enemyCar = Opponent_car(5,3.5,(i*250) + 475,(i*100) + 350,"N",enemyCarTypeList[i])
 
     enemyList.append(enemyCar)
     enemyCar.stats()
@@ -742,7 +773,7 @@ close_button_img = py.image.load("close_button.png")
 close_button_img = scale_images(close_button_img, .8)
 close_button = Button(close_button_img, 65,65, "", True, font)
 instructions_screen_img = py.image.load("instructions_screen.png")
-instructions_screen_img = scale_images(instructions_screen_img, 1)
+instructions_screen_img = scale_images(instructions_screen_img, .65)
 instructions_screen_button = Button(instructions_screen_img, half_width, half_height, "", False, font)
 blank_button_img = py.image.load("blank_button.png")
 next_button = Button(blank_button_img, half_width + (100 * window_scale_x), half_height + (100 * window_scale_y), "NEXT LEVEL", False, fontsmall)
@@ -772,7 +803,6 @@ gear_text = font.render('[G: ' + player_one_car.gear + "MPH: " + player_one_car.
 track_one_best = []
 track_two_best = []
 track_three_best = []
-conglomerate_times = []
 
 
 #-----------------------------------------------------------------------[]
@@ -782,11 +812,10 @@ conglomerate_times = []
 def drawing(surface, player_car, track):
     track.update(window)
     player_car.draw(surface)
-    if game_info.level == 1:
-        for car in enemyList:#//
-            car.draw(surface)#//
-            #for enemy in car.enemyCheckpointList:#//
-                #enemy.draw(window) #//
+    for car in enemyList:#//
+        car.draw(surface)#//
+        for enemy in car.enemyCheckpointList:#//
+            enemy.draw(window) #//
     surface.blit(gear_text, ((surface.get_width() - gear_text.get_width() - 15), 10))
     
 
@@ -840,6 +869,10 @@ def main_game_loop():
     elif game_info.level == 3:
         current_track = track_three
     player_one_car.level_reset()
+    for car in enemyList:
+            car.level_reset()
+            for checkpoint in car.enemyCheckpointList:
+                checkpoint.level_reset()
     while not done and runme == True:
         #//
         for car in enemyList:
@@ -857,6 +890,8 @@ def main_game_loop():
         if player_one_car.drifting == False:
             player_one_car.reset()
         player_one_car.reset()
+        for car in enemyList:
+            car.reset()
         clock.tick(fps)
         #game logic above, drawing below
         #added all drawing to the drawing function for polished code
@@ -873,8 +908,7 @@ def main_game_loop():
         elif game_info.level == 3:
             current_track = track_three
         drawing(window, player_one_car, current_track)
-        if game_info.level_started == True:
-            finish_line.update(window)
+        finish_line.update(window)
         py.display.update()
         #cpu_car.draw(window)
         #py.display.flip()
@@ -934,7 +968,7 @@ def main_game_loop():
             # build a menu for finish  =finish()
             game_info.total_time = game_info.time_in_level()
             if game_info.level == 1:
-                level_list = track_one_best
+                level_list = track_one_best 
             elif game_info.level == 2:
                 level_list = track_two_best
             elif game_info.level == 3:
@@ -1135,12 +1169,24 @@ def swap_cars_menu(current_car):
         #checks if car was clicked, and then updates main playing car and which car is current in the display screen
         if car1_button.clicked == True:
             player_one_car.car = 1
+            enemyCarTypeList = [1,2,3]
+            enemyCarTypeList.remove(player_one_car.car)
+            for car in enemyList:
+                car.car = enemyCarTypeList[enemyList.index(car)]
             current_car = 1
         elif car2_button.clicked == True:
             player_one_car.car = 2
+            enemyCarTypeList = [1,2,3]
+            enemyCarTypeList.remove(player_one_car.car)
+            for car in enemyList:
+                car.car = enemyCarTypeList[enemyList.index(car)]
             current_car = 2
         elif car3_button.clicked == True:
             player_one_car.car = 3
+            enemyCarTypeList = [1,2,3]
+            enemyCarTypeList.remove(player_one_car.car)
+            for car in enemyList:
+                car.car = enemyCarTypeList[enemyList.index(car)]
             current_car = 3
         if close_button.clicked == True: #closes the swap car menu and re-opens the main menu
             change_cars_run = False
@@ -1217,17 +1263,8 @@ def end_screen():
             if event.type == py.MOUSEBUTTONDOWN and event.button == 1:
                 freeplay_button.checkClick(py.mouse.get_pos())
                 main_menu_button.checkClick(py.mouse.get_pos())
-        best_one = min(track_one_best)
-        best_two = min(track_two_best)
-        best_three = min(track_three_best)
-        
-        print(best_one_two)
-        game_info.conglomerate_time = min(track_one_best) + min(track_two_best) + min(track_three_best)
         levels_c_text = fontsmall.render("You've completed all the levels... but are you fast?", True, (255,255,255))
         levels_c_rect = levels_c_text.get_rect(center=(window.get_width()/2, window.get_height()/4))
-        conglomerate_time_text = font.render("Total Time: " + str(game_info.conglomerate_time), True, (255,255,255))
-        conglomerate_time_rect = conglomerate_time_text.get_rect(center=(window.get_width()/2, window.get_height()/3))
-        window.blit(conglomerate_time_text, conglomerate_time_rect)
         window.blit(levels_c_text, levels_c_rect)
         freeplay_button.update()
         freeplay_button.colorShift(py.mouse.get_pos())
@@ -1328,6 +1365,10 @@ while not done:
     track_three.x = 340
     track_three.y = 240
     player_one_car.level_reset()
+    for car in enemyList:
+            car.level_reset()
+            for checkpoint in car.enemyCheckpointList:
+                checkpoint.level_reset()
     runme = True
     main_game_loop()
 
