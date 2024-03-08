@@ -546,8 +546,35 @@ class Opponent_car(Base_car):
             self.enemyCheckpointList.append(self.checkpointTen)
             self.enemyCheckpointList.append(self.checkpointEleven)
         if game_info.level == 2:
-            self.checkpointOne = EnemyCheckpoint(20,20,650,800)
+            self.checkpointOne = EnemyCheckpoint(20,20,650,1000)
+            if self.car == 2:
+                self.checkpointTwo = EnemyCheckpoint(20,20,1050,1200)
+                if player_one_car.car == 3:
+                    self.checkpointThree = EnemyCheckpoint(20,20,1450,1400)
+                else:
+                    self.checkpointThree = EnemyCheckpoint(20,20,1350,1400)
+                self.checkpointFour = EnemyCheckpoint(20,20,950,2000)
+                self.checkpointNine = EnemyCheckpoint(20,20,3700,3500)
+            else:
+                self.checkpointTwo = EnemyCheckpoint(20,20,1250,1300)
+                self.checkpointThree = EnemyCheckpoint(20,20,1350,1700)
+                self.checkpointFour = EnemyCheckpoint(20,20,750,2100)
+                self.checkpointNine = EnemyCheckpoint(20,20,3700,3700)
+            self.checkpointFive = EnemyCheckpoint(20,20,750,2900)
+            self.checkpointSix = EnemyCheckpoint(20,20,1400,3300)
+            self.checkpointSeven = EnemyCheckpoint(20,20,2000,2900)
+            self.checkpointEight = EnemyCheckpoint(20,20,2300,2500)
+            self.checkpointTen = EnemyCheckpoint(20,20,1500,3900)
             self.enemyCheckpointList.append(self.checkpointOne)
+            self.enemyCheckpointList.append(self.checkpointTwo)
+            self.enemyCheckpointList.append(self.checkpointThree)
+            self.enemyCheckpointList.append(self.checkpointFour)
+            self.enemyCheckpointList.append(self.checkpointFive)
+            self.enemyCheckpointList.append(self.checkpointSix)
+            self.enemyCheckpointList.append(self.checkpointSeven)            
+            self.enemyCheckpointList.append(self.checkpointEight)   
+            self.enemyCheckpointList.append(self.checkpointNine)   
+            self.enemyCheckpointList.append(self.checkpointTen)   
         if game_info.level == 3:
             self.checkpointOne = EnemyCheckpoint(20,20,650,800)
             self.enemyCheckpointList.append(self.checkpointOne)
@@ -977,8 +1004,15 @@ def main_game_loop():
             level_end_screen()
         #//
         for car in enemyList:
-            if car.collide(TRACKBORDER_MASK, track_one.x, track_one.y) != None:
-                car.bounce()
+            if game_info.level == 1:
+                if car.collide(TRACKBORDER_MASK, current_track.x, current_track.y) != None:
+                    car.bounce()
+            elif game_info.level == 2:
+                if car.collide(TRACK2BORDER_MASK, current_track.x, current_track.y) != None:
+                    car.bounce()
+            elif game_info.level == 2:
+                if car.collide(TRACKBORDER3_MASK, current_track.x, current_track.y) != None:
+                    car.bounce()
 
             if len(car.enemyCheckpointHitList) == 0:
                 car.tryToPath()
