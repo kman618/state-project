@@ -68,7 +68,7 @@ py.mixer.music.load("TchaikovskiBGMusic.mp3") #framework for background music. I
 py.mixer.music.play(-1)
 
 
-window = py.display.set_mode(windowsize, py.RESIZABLE)
+window = py.display.set_mode(windowsize)
 
 
 done = False
